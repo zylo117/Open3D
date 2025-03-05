@@ -417,35 +417,35 @@ geometry::TriangleMesh TriangleMesh::FromLegacy(
     }
 
     // Convert first material only if one or more are present
-    if (mesh_legacy.materials_.size() > 0) {
-        const auto &mat = mesh_legacy.materials_.begin()->second;
-        auto &tmat = mesh.GetMaterial();
-        tmat.SetDefaultProperties();
-        tmat.SetBaseColor(Eigen::Vector4f{mat.baseColor.f4});
-        tmat.SetBaseRoughness(mat.baseRoughness);
-        tmat.SetBaseMetallic(mat.baseMetallic);
-        tmat.SetBaseReflectance(mat.baseReflectance);
-        tmat.SetAnisotropy(mat.baseAnisotropy);
-        tmat.SetBaseClearcoat(mat.baseClearCoat);
-        tmat.SetBaseClearcoatRoughness(mat.baseClearCoatRoughness);
-        // no emissive_color in legacy mesh material
-        if (mat.albedo) tmat.SetAlbedoMap(Image::FromLegacy(*mat.albedo));
-        if (mat.normalMap) tmat.SetNormalMap(Image::FromLegacy(*mat.normalMap));
-        if (mat.roughness)
-            tmat.SetRoughnessMap(Image::FromLegacy(*mat.roughness));
-        if (mat.metallic) tmat.SetMetallicMap(Image::FromLegacy(*mat.metallic));
-        if (mat.reflectance)
-            tmat.SetReflectanceMap(Image::FromLegacy(*mat.reflectance));
-        if (mat.ambientOcclusion)
-            tmat.SetAOMap(Image::FromLegacy(*mat.ambientOcclusion));
-        if (mat.clearCoat)
-            tmat.SetClearcoatMap(Image::FromLegacy(*mat.clearCoat));
-        if (mat.clearCoatRoughness)
-            tmat.SetClearcoatRoughnessMap(
-                    Image::FromLegacy(*mat.clearCoatRoughness));
-        if (mat.anisotropy)
-            tmat.SetAnisotropyMap(Image::FromLegacy(*mat.anisotropy));
-    }
+    // if (mesh_legacy.materials_.size() > 0) {
+    //     const auto &mat = mesh_legacy.materials_.begin()->second;
+    //     auto &tmat = mesh.GetMaterial();
+    //     tmat.SetDefaultProperties();
+    //     tmat.SetBaseColor(Eigen::Vector4f{mat.baseColor.f4});
+    //     tmat.SetBaseRoughness(mat.baseRoughness);
+    //     tmat.SetBaseMetallic(mat.baseMetallic);
+    //     tmat.SetBaseReflectance(mat.baseReflectance);
+    //     tmat.SetAnisotropy(mat.baseAnisotropy);
+    //     tmat.SetBaseClearcoat(mat.baseClearCoat);
+    //     tmat.SetBaseClearcoatRoughness(mat.baseClearCoatRoughness);
+    //     // no emissive_color in legacy mesh material
+    //     if (mat.albedo) tmat.SetAlbedoMap(Image::FromLegacy(*mat.albedo));
+    //     if (mat.normalMap) tmat.SetNormalMap(Image::FromLegacy(*mat.normalMap));
+    //     if (mat.roughness)
+    //         tmat.SetRoughnessMap(Image::FromLegacy(*mat.roughness));
+    //     if (mat.metallic) tmat.SetMetallicMap(Image::FromLegacy(*mat.metallic));
+    //     if (mat.reflectance)
+    //         tmat.SetReflectanceMap(Image::FromLegacy(*mat.reflectance));
+    //     if (mat.ambientOcclusion)
+    //         tmat.SetAOMap(Image::FromLegacy(*mat.ambientOcclusion));
+    //     if (mat.clearCoat)
+    //         tmat.SetClearcoatMap(Image::FromLegacy(*mat.clearCoat));
+    //     if (mat.clearCoatRoughness)
+    //         tmat.SetClearcoatRoughnessMap(
+    //                 Image::FromLegacy(*mat.clearCoatRoughness));
+    //     if (mat.anisotropy)
+    //         tmat.SetAnisotropyMap(Image::FromLegacy(*mat.anisotropy));
+    // }
     if (mesh_legacy.materials_.size() > 1) {
         utility::LogWarning(
                 "Legacy mesh has more than 1 material which is not supported "
@@ -571,25 +571,25 @@ open3d::geometry::TriangleMesh TriangleMesh::ToLegacy() const {
     return mesh_legacy;
 }
 
-std::unordered_map<std::string, geometry::TriangleMesh>
-TriangleMesh::FromTriangleMeshModel(
-        const open3d::visualization::rendering::TriangleMeshModel &model,
-        core::Dtype float_dtype,
-        core::Dtype int_dtype,
-        const core::Device &device) {
-    std::unordered_map<std::string, TriangleMesh> tmeshes;
-    for (const auto &mobj : model.meshes_) {
-        auto tmesh = TriangleMesh::FromLegacy(*mobj.mesh, float_dtype,
-                                              int_dtype, device);
-        // material textures will be on the CPU. GPU resident texture images is
-        // not yet supported. See comment in Material.cpp
-        tmesh.SetMaterial(
-                visualization::rendering::Material::FromMaterialRecord(
-                        model.materials_[mobj.material_idx]));
-        tmeshes.emplace(mobj.mesh_name, tmesh);
-    }
-    return tmeshes;
-}
+// std::unordered_map<std::string, geometry::TriangleMesh>
+// TriangleMesh::FromTriangleMeshModel(
+//         const open3d::visualization::rendering::TriangleMeshModel &model,
+//         core::Dtype float_dtype,
+//         core::Dtype int_dtype,
+//         const core::Device &device) {
+//     std::unordered_map<std::string, TriangleMesh> tmeshes;
+//     for (const auto &mobj : model.meshes_) {
+//         auto tmesh = TriangleMesh::FromLegacy(*mobj.mesh, float_dtype,
+//                                               int_dtype, device);
+//         // material textures will be on the CPU. GPU resident texture images is
+//         // not yet supported. See comment in Material.cpp
+//         tmesh.SetMaterial(
+//                 visualization::rendering::Material::FromMaterialRecord(
+//                         model.materials_[mobj.material_idx]));
+//         tmeshes.emplace(mobj.mesh_name, tmesh);
+//     }
+//     return tmeshes;
+// }
 
 TriangleMesh TriangleMesh::To(const core::Device &device, bool copy) const {
     if (!copy && GetDevice() == device) {
@@ -926,22 +926,22 @@ void ComputePrimitiveInfoTexture(int size,
     primitive_ids = ans["primitive_ids"];
     primitive_uvs = ans["primitive_uvs"];
 }
-void UpdateMaterialTextures(
-        std::unordered_map<std::string, core::Tensor> &textures,
-        visualization::rendering::Material &material) {
-    for (auto &tex : textures) {
-        core::SizeVector element_shape(tex.second.GetShapeRef().begin() + 2,
-                                       tex.second.GetShapeRef().end());
-        core::SizeVector shape(tex.second.GetShapeRef().begin(),
-                               tex.second.GetShapeRef().begin() + 2);
-        if (tex.second.NumDims() > 2) {
-            shape.push_back(element_shape.NumElements());
-        }
+// void UpdateMaterialTextures(
+//         std::unordered_map<std::string, core::Tensor> &textures,
+//         visualization::rendering::Material &material) {
+//     for (auto &tex : textures) {
+//         core::SizeVector element_shape(tex.second.GetShapeRef().begin() + 2,
+//                                        tex.second.GetShapeRef().end());
+//         core::SizeVector shape(tex.second.GetShapeRef().begin(),
+//                                tex.second.GetShapeRef().begin() + 2);
+//         if (tex.second.NumDims() > 2) {
+//             shape.push_back(element_shape.NumElements());
+//         }
 
-        core::Tensor img_data = tex.second.Reshape(shape);
-        material.SetTextureMap(tex.first, Image(img_data));
-    }
-}
+//         core::Tensor img_data = tex.second.Reshape(shape);
+//         material.SetTextureMap(tex.first, Image(img_data));
+//     }
+// }
 
 }  // namespace
 std::unordered_map<std::string, core::Tensor>
@@ -1003,9 +1003,9 @@ TriangleMesh::BakeVertexAttrTextures(
                     result[attr] = tex;
                 });
     }
-    if (update_material) {
-        UpdateMaterialTextures(result, this->GetMaterial());
-    }
+    // if (update_material) {
+    //     UpdateMaterialTextures(result, this->GetMaterial());
+    // }
 
     return result;
 }
@@ -1058,9 +1058,9 @@ TriangleMesh::BakeTriangleAttrTextures(
             result[attr] = tex;
         });
     }
-    if (update_material) {
-        UpdateMaterialTextures(result, this->GetMaterial());
-    }
+    // if (update_material) {
+    //     UpdateMaterialTextures(result, this->GetMaterial());
+    // }
 
     return result;
 }

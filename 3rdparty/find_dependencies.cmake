@@ -629,105 +629,105 @@ else()
 endif()
 
 # GLEW
-if(USE_SYSTEM_GLEW)
-    open3d_find_package_3rdparty_library(3rdparty_glew
-        HEADER
-        PACKAGE GLEW
-        TARGETS GLEW::GLEW
-    )
-    if(NOT 3rdparty_glew_FOUND)
-        open3d_pkg_config_3rdparty_library(3rdparty_glew
-            HEADER
-            SEARCH_ARGS glew
-        )
-        if(NOT 3rdparty_glew_FOUND)
-            set(USE_SYSTEM_GLEW OFF)
-        endif()
-    endif()
-endif()
-if(NOT USE_SYSTEM_GLEW)
-    open3d_build_3rdparty_library(3rdparty_glew DIRECTORY glew
-        HEADER
-        SOURCES
-            src/glew.c
-        INCLUDE_DIRS
-            include/
-    )
-    if(ENABLE_HEADLESS_RENDERING)
-        target_compile_definitions(3rdparty_glew PUBLIC GLEW_OSMESA)
-    endif()
-    if(WIN32)
-        target_compile_definitions(3rdparty_glew PUBLIC GLEW_STATIC)
-    endif()
-    list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_CUSTOM Open3D::3rdparty_glew)
-else()
-    list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_SYSTEM Open3D::3rdparty_glew)
-endif()
+# if(USE_SYSTEM_GLEW)
+#     open3d_find_package_3rdparty_library(3rdparty_glew
+#         HEADER
+#         PACKAGE GLEW
+#         TARGETS GLEW::GLEW
+#     )
+#     if(NOT 3rdparty_glew_FOUND)
+#         open3d_pkg_config_3rdparty_library(3rdparty_glew
+#             HEADER
+#             SEARCH_ARGS glew
+#         )
+#         if(NOT 3rdparty_glew_FOUND)
+#             set(USE_SYSTEM_GLEW OFF)
+#         endif()
+#     endif()
+# endif()
+# if(NOT USE_SYSTEM_GLEW)
+#     open3d_build_3rdparty_library(3rdparty_glew DIRECTORY glew
+#         HEADER
+#         SOURCES
+#             src/glew.c
+#         INCLUDE_DIRS
+#             include/
+#     )
+#     if(ENABLE_HEADLESS_RENDERING)
+#         target_compile_definitions(3rdparty_glew PUBLIC GLEW_OSMESA)
+#     endif()
+#     if(WIN32)
+#         target_compile_definitions(3rdparty_glew PUBLIC GLEW_STATIC)
+#     endif()
+#     list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_CUSTOM Open3D::3rdparty_glew)
+# else()
+#     list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_SYSTEM Open3D::3rdparty_glew)
+# endif()
 
-# GLFW
-if(USE_SYSTEM_GLFW)
-    open3d_find_package_3rdparty_library(3rdparty_glfw
-        HEADER
-        PACKAGE glfw3
-        TARGETS glfw
-    )
-    if(NOT 3rdparty_glfw_FOUND)
-        open3d_pkg_config_3rdparty_library(3rdparty_glfw
-            HEADER
-            SEARCH_ARGS glfw3
-        )
-        if(NOT 3rdparty_glfw_FOUND)
-            set(USE_SYSTEM_GLFW OFF)
-        endif()
-    endif()
-endif()
-if(NOT USE_SYSTEM_GLFW)
-    include(${Open3D_3RDPARTY_DIR}/glfw/glfw.cmake)
-    open3d_import_3rdparty_library(3rdparty_glfw
-        HEADER
-        INCLUDE_DIRS ${GLFW_INCLUDE_DIRS}
-        LIB_DIR      ${GLFW_LIB_DIR}
-        LIBRARIES    ${GLFW_LIBRARIES}
-        DEPENDS      ext_glfw
-    )
+# # GLFW
+# if(USE_SYSTEM_GLFW)
+#     open3d_find_package_3rdparty_library(3rdparty_glfw
+#         HEADER
+#         PACKAGE glfw3
+#         TARGETS glfw
+#     )
+#     if(NOT 3rdparty_glfw_FOUND)
+#         open3d_pkg_config_3rdparty_library(3rdparty_glfw
+#             HEADER
+#             SEARCH_ARGS glfw3
+#         )
+#         if(NOT 3rdparty_glfw_FOUND)
+#             set(USE_SYSTEM_GLFW OFF)
+#         endif()
+#     endif()
+# endif()
+# if(NOT USE_SYSTEM_GLFW)
+#     include(${Open3D_3RDPARTY_DIR}/glfw/glfw.cmake)
+#     open3d_import_3rdparty_library(3rdparty_glfw
+#         HEADER
+#         INCLUDE_DIRS ${GLFW_INCLUDE_DIRS}
+#         LIB_DIR      ${GLFW_LIB_DIR}
+#         LIBRARIES    ${GLFW_LIBRARIES}
+#         DEPENDS      ext_glfw
+#     )
 
-    target_link_libraries(3rdparty_glfw INTERFACE Open3D::3rdparty_threads)
-    if(UNIX AND NOT APPLE)
-        find_library(RT_LIBRARY rt)
-        if(RT_LIBRARY)
-            target_link_libraries(3rdparty_glfw INTERFACE ${RT_LIBRARY})
-        endif()
-        find_library(MATH_LIBRARY m)
-        if(MATH_LIBRARY)
-            target_link_libraries(3rdparty_glfw INTERFACE ${MATH_LIBRARY})
-        endif()
-        if(CMAKE_DL_LIBS)
-            target_link_libraries(3rdparty_glfw INTERFACE ${CMAKE_DL_LIBS})
-        endif()
-    endif()
-    if(APPLE)
-        find_library(COCOA_FRAMEWORK Cocoa)
-        find_library(IOKIT_FRAMEWORK IOKit)
-        find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-        find_library(CORE_VIDEO_FRAMEWORK CoreVideo)
-        target_link_libraries(3rdparty_glfw INTERFACE
-            ${COCOA_FRAMEWORK}
-            ${IOKIT_FRAMEWORK}
-            ${CORE_FOUNDATION_FRAMEWORK}
-            ${CORE_VIDEO_FRAMEWORK}
-        )
-    endif()
-    if(WIN32)
-        target_link_libraries(3rdparty_glfw INTERFACE gdi32)
-    endif()
-    list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_CUSTOM Open3D::3rdparty_glfw)
-    list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_glfw)
-else()
-    list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_SYSTEM Open3D::3rdparty_glfw)
-endif()
-if(TARGET Open3D::3rdparty_x11)
-    target_link_libraries(3rdparty_glfw INTERFACE Open3D::3rdparty_x11)
-endif()
+#     target_link_libraries(3rdparty_glfw INTERFACE Open3D::3rdparty_threads)
+#     if(UNIX AND NOT APPLE)
+#         find_library(RT_LIBRARY rt)
+#         if(RT_LIBRARY)
+#             target_link_libraries(3rdparty_glfw INTERFACE ${RT_LIBRARY})
+#         endif()
+#         find_library(MATH_LIBRARY m)
+#         if(MATH_LIBRARY)
+#             target_link_libraries(3rdparty_glfw INTERFACE ${MATH_LIBRARY})
+#         endif()
+#         if(CMAKE_DL_LIBS)
+#             target_link_libraries(3rdparty_glfw INTERFACE ${CMAKE_DL_LIBS})
+#         endif()
+#     endif()
+#     if(APPLE)
+#         find_library(COCOA_FRAMEWORK Cocoa)
+#         find_library(IOKIT_FRAMEWORK IOKit)
+#         find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+#         find_library(CORE_VIDEO_FRAMEWORK CoreVideo)
+#         target_link_libraries(3rdparty_glfw INTERFACE
+#             ${COCOA_FRAMEWORK}
+#             ${IOKIT_FRAMEWORK}
+#             ${CORE_FOUNDATION_FRAMEWORK}
+#             ${CORE_VIDEO_FRAMEWORK}
+#         )
+#     endif()
+#     if(WIN32)
+#         target_link_libraries(3rdparty_glfw INTERFACE gdi32)
+#     endif()
+#     list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_CUSTOM Open3D::3rdparty_glfw)
+#     list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_glfw)
+# else()
+#     list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_SYSTEM Open3D::3rdparty_glfw)
+# endif()
+# if(TARGET Open3D::3rdparty_x11)
+#     target_link_libraries(3rdparty_glfw INTERFACE Open3D::3rdparty_x11)
+# endif()
 
 # TurboJPEG
 if(USE_SYSTEM_JPEG AND BUILD_AZURE_KINECT)
@@ -1407,21 +1407,21 @@ if(BUILD_GUI)
 endif()
 
 # Headless rendering
-if (ENABLE_HEADLESS_RENDERING)
-    open3d_find_package_3rdparty_library(3rdparty_opengl
-        REQUIRED
-        PACKAGE OSMesa
-        INCLUDE_DIRS OSMESA_INCLUDE_DIR
-        LIBRARIES OSMESA_LIBRARY
-    )
-else()
-    open3d_find_package_3rdparty_library(3rdparty_opengl
-        PACKAGE OpenGL
-        TARGETS OpenGL::GL
-    )
-    set(USE_SYSTEM_OPENGL ON)
-endif()
-list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_SYSTEM Open3D::3rdparty_opengl)
+# if (ENABLE_HEADLESS_RENDERING)
+#     open3d_find_package_3rdparty_library(3rdparty_opengl
+#         REQUIRED
+#         PACKAGE OSMesa
+#         INCLUDE_DIRS OSMESA_INCLUDE_DIR
+#         LIBRARIES OSMESA_LIBRARY
+#     )
+# else()
+#     open3d_find_package_3rdparty_library(3rdparty_opengl
+#         PACKAGE OpenGL
+#         TARGETS OpenGL::GL
+#     )
+#     set(USE_SYSTEM_OPENGL ON)
+# endif()
+# list(APPEND Open3D_3RDPARTY_HEADER_TARGETS_FROM_SYSTEM Open3D::3rdparty_opengl)
 
 # RPC interface
 # zeromq
