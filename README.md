@@ -1,3 +1,33 @@
+    remove android library debug info to reduce lib size or you can strip it later by yourself
+
+    # open $ANDROID_NDK/build/cmake/android.toolchain.cmake for ndk < r23
+    # or $ANDROID_NDK/build/cmake/android-legacy.toolchain.cmake for ndk >= r23
+    # delete "-g" line
+    list(APPEND ANDROID_COMPILER_FLAGS
+    -g
+    -DANDROID
+
+    run
+    cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI="arm64-v8a" \
+    -DANDROID_PLATFORM=android-33 \  # must be >= 33 to enable some clang header
+    -DBUILD_PYTHON_MODULE=OFF \
+    -DBUILD_EXAMPLES=OFF \
+    -DBUILD_GUI=OFF \
+    -DBUILD_ISPC_MODULE=OFF \
+    -DBUILD_WEBRTC=OFF \
+    -DBUILD_WITH_CUDA_STATIC=OFF \
+    -DWITH_IPP=OFF \
+    -DUSE_BLAS=ON \
+    -DUSE_SYSTEM_BLAS=OFF \
+    -DENABLE_HEADLESS_RENDERING=OFF \
+    -DBUILD_CUDA_MODULE=OFF \
+    -DENABLE_CACHED_CUDA_MANAGER=OFF \
+    -DCMAKE_INSTALL_PREFIX=../install \
+    -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG" \
+    -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG" ..
+
+
+
 <p align="center">
 <img src="https://raw.githubusercontent.com/isl-org/Open3D/main/docs/_static/open3d_logo_horizontal.png" width="320" />
 </p>

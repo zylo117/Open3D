@@ -21,8 +21,8 @@
 #include "open3d/utility/FileSystem.h"
 #include "open3d/utility/Logging.h"
 #include "open3d/utility/ProgressReporters.h"
-#include "open3d/visualization/rendering/MaterialRecord.h"
-#include "open3d/visualization/rendering/Model.h"
+// #include "open3d/visualization/rendering/MaterialRecord.h"
+// #include "open3d/visualization/rendering/Model.h"
 
 #define AI_MATKEY_CLEARCOAT_THICKNESS "$mat.clearcoatthickness", 0, 0
 #define AI_MATKEY_CLEARCOAT_ROUGHNESS "$mat.clearcoatroughness", 0, 0
@@ -297,178 +297,178 @@ bool ReadTriangleMeshUsingASSIMP(
     return true;
 }
 
-bool ReadModelUsingAssimp(const std::string& filename,
-                          visualization::rendering::TriangleMeshModel& model,
-                          const ReadTriangleModelOptions& params /*={}*/) {
-    int64_t progress_total = 100;  // 70: ReadFile(), 10: mesh, 20: textures
-    float readfile_total = 70.0f;
-    float mesh_total = 10.0f;
-    float textures_total = 20.0f;
-    int64_t progress = 0;
-    utility::CountingProgressReporter reporter(params.update_progress);
-    reporter.SetTotal(progress_total);
-    class AssimpProgress : public Assimp::ProgressHandler {
-    public:
-        AssimpProgress(const ReadTriangleModelOptions& params, float scaling)
-            : params_(params), scaling_(scaling) {}
+// bool ReadModelUsingAssimp(const std::string& filename,
+//                           visualization::rendering::TriangleMeshModel& model,
+//                           const ReadTriangleModelOptions& params /*={}*/) {
+//     int64_t progress_total = 100;  // 70: ReadFile(), 10: mesh, 20: textures
+//     float readfile_total = 70.0f;
+//     float mesh_total = 10.0f;
+//     float textures_total = 20.0f;
+//     int64_t progress = 0;
+//     utility::CountingProgressReporter reporter(params.update_progress);
+//     reporter.SetTotal(progress_total);
+//     class AssimpProgress : public Assimp::ProgressHandler {
+//     public:
+//         AssimpProgress(const ReadTriangleModelOptions& params, float scaling)
+//             : params_(params), scaling_(scaling) {}
 
-        bool Update(float percentage = -1.0f) override {
-            if (params_.update_progress) {
-                params_.update_progress(
-                        std::max(0.0f, 100.0f * scaling_ * percentage));
-            }
-            return true;
-        }
+//         bool Update(float percentage = -1.0f) override {
+//             if (params_.update_progress) {
+//                 params_.update_progress(
+//                         std::max(0.0f, 100.0f * scaling_ * percentage));
+//             }
+//             return true;
+//         }
 
-    private:
-        const ReadTriangleModelOptions& params_;
-        float scaling_;
-    };
+//     private:
+//         const ReadTriangleModelOptions& params_;
+//         float scaling_;
+//     };
 
-    Assimp::Importer importer;
-    // The importer takes ownership of the pointer (the documentation
-    // is silent on this salient point).
-    importer.SetProgressHandler(
-            new AssimpProgress(params, readfile_total / progress_total));
-    const auto* scene =
-            importer.ReadFile(filename.c_str(), kPostProcessFlags_fast);
-    if (!scene) {
-        utility::LogWarning("Unable to load file {} with ASSIMP: {}", filename,
-                            importer.GetErrorString());
-        return false;
-    }
+//     Assimp::Importer importer;
+//     // The importer takes ownership of the pointer (the documentation
+//     // is silent on this salient point).
+//     importer.SetProgressHandler(
+//             new AssimpProgress(params, readfile_total / progress_total));
+//     const auto* scene =
+//             importer.ReadFile(filename.c_str(), kPostProcessFlags_fast);
+//     if (!scene) {
+//         utility::LogWarning("Unable to load file {} with ASSIMP: {}", filename,
+//                             importer.GetErrorString());
+//         return false;
+//     }
 
-    progress = int64_t(readfile_total);
-    reporter.Update(progress);
+//     progress = int64_t(readfile_total);
+//     reporter.Update(progress);
 
-    // Process each Assimp mesh into a geometry::TriangleMesh
-    for (size_t midx = 0; midx < scene->mNumMeshes; ++midx) {
-        const auto* assimp_mesh = scene->mMeshes[midx];
-        // Only process triangle meshes
-        if (!(assimp_mesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)) {
-            utility::LogInfo(
-                    "Skipping non-triangle primitive geometry of type: "
-                    "{}",
-                    assimp_mesh->mPrimitiveTypes);
-            continue;
-        }
+//     // Process each Assimp mesh into a geometry::TriangleMesh
+//     for (size_t midx = 0; midx < scene->mNumMeshes; ++midx) {
+//         const auto* assimp_mesh = scene->mMeshes[midx];
+//         // Only process triangle meshes
+//         if (!(assimp_mesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)) {
+//             utility::LogInfo(
+//                     "Skipping non-triangle primitive geometry of type: "
+//                     "{}",
+//                     assimp_mesh->mPrimitiveTypes);
+//             continue;
+//         }
 
-        std::shared_ptr<geometry::TriangleMesh> mesh =
-                std::make_shared<geometry::TriangleMesh>();
+//         std::shared_ptr<geometry::TriangleMesh> mesh =
+//                 std::make_shared<geometry::TriangleMesh>();
 
-        // copy vertex data
-        for (size_t vidx = 0; vidx < assimp_mesh->mNumVertices; ++vidx) {
-            auto& vertex = assimp_mesh->mVertices[vidx];
-            mesh->vertices_.push_back(
-                    Eigen::Vector3d(vertex.x, vertex.y, vertex.z));
-        }
+//         // copy vertex data
+//         for (size_t vidx = 0; vidx < assimp_mesh->mNumVertices; ++vidx) {
+//             auto& vertex = assimp_mesh->mVertices[vidx];
+//             mesh->vertices_.push_back(
+//                     Eigen::Vector3d(vertex.x, vertex.y, vertex.z));
+//         }
 
-        // copy face indices data
-        for (size_t fidx = 0; fidx < assimp_mesh->mNumFaces; ++fidx) {
-            auto& face = assimp_mesh->mFaces[fidx];
-            Eigen::Vector3i facet(face.mIndices[0], face.mIndices[1],
-                                  face.mIndices[2]);
-            mesh->triangles_.push_back(facet);
-        }
+//         // copy face indices data
+//         for (size_t fidx = 0; fidx < assimp_mesh->mNumFaces; ++fidx) {
+//             auto& face = assimp_mesh->mFaces[fidx];
+//             Eigen::Vector3i facet(face.mIndices[0], face.mIndices[1],
+//                                   face.mIndices[2]);
+//             mesh->triangles_.push_back(facet);
+//         }
 
-        if (assimp_mesh->mNormals) {
-            for (size_t nidx = 0; nidx < assimp_mesh->mNumVertices; ++nidx) {
-                auto& normal = assimp_mesh->mNormals[nidx];
-                mesh->vertex_normals_.push_back({normal.x, normal.y, normal.z});
-            }
-        }
+//         if (assimp_mesh->mNormals) {
+//             for (size_t nidx = 0; nidx < assimp_mesh->mNumVertices; ++nidx) {
+//                 auto& normal = assimp_mesh->mNormals[nidx];
+//                 mesh->vertex_normals_.push_back({normal.x, normal.y, normal.z});
+//             }
+//         }
 
-        // NOTE: only use the first UV channel
-        if (assimp_mesh->HasTextureCoords(0)) {
-            for (size_t fidx = 0; fidx < assimp_mesh->mNumFaces; ++fidx) {
-                auto& face = assimp_mesh->mFaces[fidx];
-                auto& uv1 = assimp_mesh->mTextureCoords[0][face.mIndices[0]];
-                auto& uv2 = assimp_mesh->mTextureCoords[0][face.mIndices[1]];
-                auto& uv3 = assimp_mesh->mTextureCoords[0][face.mIndices[2]];
-                mesh->triangle_uvs_.push_back(Eigen::Vector2d(uv1.x, uv1.y));
-                mesh->triangle_uvs_.push_back(Eigen::Vector2d(uv2.x, uv2.y));
-                mesh->triangle_uvs_.push_back(Eigen::Vector2d(uv3.x, uv3.y));
-            }
-        }
+//         // NOTE: only use the first UV channel
+//         if (assimp_mesh->HasTextureCoords(0)) {
+//             for (size_t fidx = 0; fidx < assimp_mesh->mNumFaces; ++fidx) {
+//                 auto& face = assimp_mesh->mFaces[fidx];
+//                 auto& uv1 = assimp_mesh->mTextureCoords[0][face.mIndices[0]];
+//                 auto& uv2 = assimp_mesh->mTextureCoords[0][face.mIndices[1]];
+//                 auto& uv3 = assimp_mesh->mTextureCoords[0][face.mIndices[2]];
+//                 mesh->triangle_uvs_.push_back(Eigen::Vector2d(uv1.x, uv1.y));
+//                 mesh->triangle_uvs_.push_back(Eigen::Vector2d(uv2.x, uv2.y));
+//                 mesh->triangle_uvs_.push_back(Eigen::Vector2d(uv3.x, uv3.y));
+//             }
+//         }
 
-        // NOTE: only use the first color attribute
-        if (assimp_mesh->HasVertexColors(0)) {
-            for (size_t cidx = 0; cidx < assimp_mesh->mNumVertices; ++cidx) {
-                auto& c = assimp_mesh->mColors[0][cidx];
-                mesh->vertex_colors_.push_back({c.r, c.g, c.b});
-            }
-        }
+//         // NOTE: only use the first color attribute
+//         if (assimp_mesh->HasVertexColors(0)) {
+//             for (size_t cidx = 0; cidx < assimp_mesh->mNumVertices; ++cidx) {
+//                 auto& c = assimp_mesh->mColors[0][cidx];
+//                 mesh->vertex_colors_.push_back({c.r, c.g, c.b});
+//             }
+//         }
 
-        // Add the mesh to the model
-        model.meshes_.push_back({mesh, std::string(assimp_mesh->mName.C_Str()),
-                                 assimp_mesh->mMaterialIndex});
-    }
+//         // Add the mesh to the model
+//         model.meshes_.push_back({mesh, std::string(assimp_mesh->mName.C_Str()),
+//                                  assimp_mesh->mMaterialIndex});
+//     }
 
-    progress = int64_t(readfile_total + mesh_total);
-    reporter.Update(progress);
+//     progress = int64_t(readfile_total + mesh_total);
+//     reporter.Update(progress);
 
-    // Load materials
-    for (size_t i = 0; i < scene->mNumMaterials; ++i) {
-        auto* mat = scene->mMaterials[i];
+//     // Load materials
+//     for (size_t i = 0; i < scene->mNumMaterials; ++i) {
+//         auto* mat = scene->mMaterials[i];
 
-        visualization::rendering::MaterialRecord o3d_mat;
+//         visualization::rendering::MaterialRecord o3d_mat;
 
-        o3d_mat.name = mat->GetName().C_Str();
+//         o3d_mat.name = mat->GetName().C_Str();
 
-        // Retrieve base material properties
-        aiColor3D color(1.f, 1.f, 1.f);
+//         // Retrieve base material properties
+//         aiColor3D color(1.f, 1.f, 1.f);
 
-        mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-        o3d_mat.base_color = Eigen::Vector4f(color.r, color.g, color.b, 1.f);
-        mat->Get(AI_MATKEY_METALLIC_FACTOR, o3d_mat.base_metallic);
-        mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, o3d_mat.base_roughness);
-        mat->Get(AI_MATKEY_REFLECTIVITY, o3d_mat.base_reflectance);
-        mat->Get(AI_MATKEY_SHEEN, o3d_mat.base_reflectance);
+//         mat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+//         o3d_mat.base_color = Eigen::Vector4f(color.r, color.g, color.b, 1.f);
+//         mat->Get(AI_MATKEY_METALLIC_FACTOR, o3d_mat.base_metallic);
+//         mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, o3d_mat.base_roughness);
+//         mat->Get(AI_MATKEY_REFLECTIVITY, o3d_mat.base_reflectance);
+//         mat->Get(AI_MATKEY_SHEEN, o3d_mat.base_reflectance);
 
-        mat->Get(AI_MATKEY_CLEARCOAT_THICKNESS, o3d_mat.base_clearcoat);
-        mat->Get(AI_MATKEY_CLEARCOAT_FACTOR, o3d_mat.base_clearcoat);
-        mat->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR,
-                 o3d_mat.base_clearcoat_roughness);
-        mat->Get(AI_MATKEY_ANISOTROPY, o3d_mat.base_anisotropy);
-        mat->Get(AI_MATKEY_COLOR_EMISSIVE, color);
-        o3d_mat.emissive_color =
-                Eigen::Vector4f(color.r, color.g, color.b, 1.f);
-        aiString alpha_mode;
-        mat->Get(AI_MATKEY_GLTF_ALPHAMODE, alpha_mode);
-        std::string alpha_mode_str(alpha_mode.C_Str());
-        if (alpha_mode_str == "BLEND" || alpha_mode_str == "MASK") {
-            o3d_mat.has_alpha = true;
-        }
+//         mat->Get(AI_MATKEY_CLEARCOAT_THICKNESS, o3d_mat.base_clearcoat);
+//         mat->Get(AI_MATKEY_CLEARCOAT_FACTOR, o3d_mat.base_clearcoat);
+//         mat->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR,
+//                  o3d_mat.base_clearcoat_roughness);
+//         mat->Get(AI_MATKEY_ANISOTROPY, o3d_mat.base_anisotropy);
+//         mat->Get(AI_MATKEY_COLOR_EMISSIVE, color);
+//         o3d_mat.emissive_color =
+//                 Eigen::Vector4f(color.r, color.g, color.b, 1.f);
+//         aiString alpha_mode;
+//         mat->Get(AI_MATKEY_GLTF_ALPHAMODE, alpha_mode);
+//         std::string alpha_mode_str(alpha_mode.C_Str());
+//         if (alpha_mode_str == "BLEND" || alpha_mode_str == "MASK") {
+//             o3d_mat.has_alpha = true;
+//         }
 
-        // Retrieve textures
-        TextureImages maps;
-        LoadTextures(filename, scene, mat, maps);
-        o3d_mat.albedo_img = maps.albedo;
-        o3d_mat.normal_img = maps.normal;
-        o3d_mat.ao_img = maps.ao;
-        o3d_mat.metallic_img = maps.metallic;
-        o3d_mat.roughness_img = maps.roughness;
-        o3d_mat.reflectance_img = maps.reflectance;
-        o3d_mat.ao_rough_metal_img = maps.gltf_rough_metal;
+//         // Retrieve textures
+//         TextureImages maps;
+//         LoadTextures(filename, scene, mat, maps);
+//         o3d_mat.albedo_img = maps.albedo;
+//         o3d_mat.normal_img = maps.normal;
+//         o3d_mat.ao_img = maps.ao;
+//         o3d_mat.metallic_img = maps.metallic;
+//         o3d_mat.roughness_img = maps.roughness;
+//         o3d_mat.reflectance_img = maps.reflectance;
+//         o3d_mat.ao_rough_metal_img = maps.gltf_rough_metal;
 
-        if (o3d_mat.has_alpha) {
-            o3d_mat.shader = "defaultLitTransparency";
-        } else {
-            o3d_mat.shader = "defaultLit";
-        }
+//         if (o3d_mat.has_alpha) {
+//             o3d_mat.shader = "defaultLitTransparency";
+//         } else {
+//             o3d_mat.shader = "defaultLit";
+//         }
 
-        model.materials_.push_back(o3d_mat);
+//         model.materials_.push_back(o3d_mat);
 
-        progress = int64_t(readfile_total + mesh_total +
-                           textures_total * float(i + 1) /
-                                   float(scene->mNumMaterials));
-        reporter.Update(progress);
-    }
+//         progress = int64_t(readfile_total + mesh_total +
+//                            textures_total * float(i + 1) /
+//                                    float(scene->mNumMaterials));
+//         reporter.Update(progress);
+//     }
 
-    reporter.Update(progress_total);
+//     reporter.Update(progress_total);
 
-    return true;
-}
+//     return true;
+// }
 
 }  // namespace io
 }  // namespace open3d

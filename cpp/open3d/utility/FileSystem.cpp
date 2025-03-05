@@ -35,8 +35,8 @@
 #include <filesystem>
 namespace fs = std::__fs::filesystem;
 #else
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
+#include <filesystem>
+namespace fs = std::filesystem;
 #endif
 
 #include "open3d/utility/Logging.h"

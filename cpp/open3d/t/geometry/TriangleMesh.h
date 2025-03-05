@@ -18,7 +18,7 @@
 #include "open3d/t/geometry/DrawableGeometry.h"
 #include "open3d/t/geometry/Geometry.h"
 #include "open3d/t/geometry/TensorMap.h"
-#include "open3d/visualization/rendering/Model.h"
+// #include "open3d/visualization/rendering/Model.h"
 
 namespace open3d {
 namespace t {
@@ -750,12 +750,12 @@ public:
     /// texture images are not yet supported.
     /// \return unordered map of constituent mesh names to TriangleMeshes, with
     /// materials.
-    static std::unordered_map<std::string, geometry::TriangleMesh>
-    FromTriangleMeshModel(
-            const open3d::visualization::rendering::TriangleMeshModel &model,
-            core::Dtype float_dtype = core::Float32,
-            core::Dtype int_dtype = core::Int64,
-            const core::Device &device = core::Device("CPU:0"));
+    // static std::unordered_map<std::string, geometry::TriangleMesh>
+    // FromTriangleMeshModel(
+    //         const open3d::visualization::rendering::TriangleMeshModel &model,
+    //         core::Dtype float_dtype = core::Float32,
+    //         core::Dtype int_dtype = core::Int64,
+    //         const core::Device &device = core::Device("CPU:0"));
 
     /// Compute the convex hull of the triangle mesh using qhull.
     ///
