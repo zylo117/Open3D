@@ -779,9 +779,10 @@ std::tuple<float, int, int> TriangleMesh::ComputeUVAtlas(
         float max_stretch,
         int parallel_partitions,
         int nthreads) {
-    return kernel::uvunwrapping::ComputeUVAtlas(*this, size, size, gutter,
-                                                max_stretch,
-                                                parallel_partitions, nthreads);
+    return {0.0, 0, 0};
+    // return kernel::uvunwrapping::ComputeUVAtlas(*this, size, size, gutter,
+    //                                             max_stretch,
+    //                                             parallel_partitions, nthreads);
 }
 
 namespace {

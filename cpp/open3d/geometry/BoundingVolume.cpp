@@ -189,14 +189,14 @@ OrientedBoundingBox OrientedBoundingBox::CreateFromPoints(
     return obox;
 }
 
-OrientedBoundingBox OrientedBoundingBox::CreateFromPointsMinimal(
-        const std::vector<Eigen::Vector3d>& points, bool robust) {
-    auto tpoints = core::eigen_converter::EigenVector3dVectorToTensor(
-            points, core::Float64, core::Device());
-    return t::geometry::kernel::minimum_obb::ComputeMinimumOBBJylanki(tpoints,
-                                                                      robust)
-            .ToLegacy();
-}
+// OrientedBoundingBox OrientedBoundingBox::CreateFromPointsMinimal(
+//         const std::vector<Eigen::Vector3d>& points, bool robust) {
+//     auto tpoints = core::eigen_converter::EigenVector3dVectorToTensor(
+//             points, core::Float64, core::Device());
+//     return t::geometry::kernel::minimum_obb::ComputeMinimumOBBJylanki(tpoints,
+//                                                                       robust)
+//             .ToLegacy();
+// }
 
 AxisAlignedBoundingBox& AxisAlignedBoundingBox::Clear() {
     min_bound_.setZero();

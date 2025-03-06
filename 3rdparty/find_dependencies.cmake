@@ -161,6 +161,9 @@ endfunction()
 # CMake arguments for configuring ExternalProjects. Use the second _hidden
 # version by default.
 set(ExternalProject_CMAKE_ARGS
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_ABI=${ANDROID_ABI}
+    -DANDROID_PLATFORM=${ANDROID_PLATFORM}
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
     -DCMAKE_CUDA_COMPILER=${CMAKE_CUDA_COMPILER}
@@ -859,60 +862,60 @@ endif()
 # - Curl should be linked before PNG, otherwise it will have undefined symbols.
 # - openssl.cmake needs to be included before curl.cmake, for the
 #   BORINGSSL_ROOT_DIR variable.
-if(USE_SYSTEM_CURL)
-    open3d_pkg_config_3rdparty_library(3rdparty_curl
-        SEARCH_ARGS libcurl
-    )
-    if(NOT 3rdparty_curl_FOUND)
-        set(USE_SYSTEM_CURL OFF)
-    endif()
-endif()
-if(NOT USE_SYSTEM_CURL)
-    if(USE_SYSTEM_OPENSSL)
-        open3d_find_package_3rdparty_library(3rdparty_openssl
-            PACKAGE OpenSSL
-            TARGETS OpenSSL::Crypto
-        )
-        if(NOT 3rdparty_openssl_FOUND)
-            set(USE_SYSTEM_OPENSSL OFF)
-        endif()
-    endif()
-    if(NOT USE_SYSTEM_OPENSSL)
-        # BoringSSL
-        include(${Open3D_3RDPARTY_DIR}/boringssl/boringssl.cmake)
-        open3d_import_3rdparty_library(3rdparty_openssl
-            INCLUDE_DIRS ${BORINGSSL_INCLUDE_DIRS}
-            INCLUDE_ALL
-            INCLUDE_DIRS ${BORINGSSL_INCLUDE_DIRS}
-            LIB_DIR      ${BORINGSSL_LIB_DIR}
-            LIBRARIES    ${BORINGSSL_LIBRARIES}
-            DEPENDS      ext_zlib ext_boringssl
-        )
-    endif()
+# if(USE_SYSTEM_CURL)
+#     open3d_pkg_config_3rdparty_library(3rdparty_curl
+#         SEARCH_ARGS libcurl
+#     )
+#     if(NOT 3rdparty_curl_FOUND)
+#         set(USE_SYSTEM_CURL OFF)
+#     endif()
+# endif()
+# if(NOT USE_SYSTEM_CURL)
+#     if(USE_SYSTEM_OPENSSL)
+#         open3d_find_package_3rdparty_library(3rdparty_openssl
+#             PACKAGE OpenSSL
+#             TARGETS OpenSSL::Crypto
+#         )
+#         if(NOT 3rdparty_openssl_FOUND)
+#             set(USE_SYSTEM_OPENSSL OFF)
+#         endif()
+#     endif()
+#     if(NOT USE_SYSTEM_OPENSSL)
+#         # BoringSSL
+#         include(${Open3D_3RDPARTY_DIR}/boringssl/boringssl.cmake)
+#         open3d_import_3rdparty_library(3rdparty_openssl
+#             INCLUDE_DIRS ${BORINGSSL_INCLUDE_DIRS}
+#             INCLUDE_ALL
+#             INCLUDE_DIRS ${BORINGSSL_INCLUDE_DIRS}
+#             LIB_DIR      ${BORINGSSL_LIB_DIR}
+#             LIBRARIES    ${BORINGSSL_LIBRARIES}
+#             DEPENDS      ext_zlib ext_boringssl
+#         )
+#     endif()
 
-    include(${Open3D_3RDPARTY_DIR}/curl/curl.cmake)
-    open3d_import_3rdparty_library(3rdparty_curl
-        INCLUDE_DIRS ${CURL_INCLUDE_DIRS}
-        INCLUDE_ALL
-        LIB_DIR      ${CURL_LIB_DIR}
-        LIBRARIES    ${CURL_LIBRARIES}
-        DEPENDS      ext_zlib ext_curl
-    )
-    if(APPLE)
-        # Missing frameworks: https://stackoverflow.com/a/56157695/1255535
-        # Link frameworks   : https://stackoverflow.com/a/18330634/1255535
-        # Fixes error:
-        # ```
-        # Undefined symbols for architecture arm64:
-        # "_SCDynamicStoreCopyProxies", referenced from:
-        #     _Curl_resolv in libcurl.a(hostip.c.o)
-        # ```
-        # The "Foundation" framework is already linked by GLFW.
-        target_link_libraries(3rdparty_curl INTERFACE "-framework SystemConfiguration")
-    endif()
-    target_link_libraries(3rdparty_curl INTERFACE 3rdparty_openssl)
-endif()
-list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_curl)
+#     include(${Open3D_3RDPARTY_DIR}/curl/curl.cmake)
+#     open3d_import_3rdparty_library(3rdparty_curl
+#         INCLUDE_DIRS ${CURL_INCLUDE_DIRS}
+#         INCLUDE_ALL
+#         LIB_DIR      ${CURL_LIB_DIR}
+#         LIBRARIES    ${CURL_LIBRARIES}
+#         DEPENDS      ext_zlib ext_curl
+#     )
+#     if(APPLE)
+#         # Missing frameworks: https://stackoverflow.com/a/56157695/1255535
+#         # Link frameworks   : https://stackoverflow.com/a/18330634/1255535
+#         # Fixes error:
+#         # ```
+#         # Undefined symbols for architecture arm64:
+#         # "_SCDynamicStoreCopyProxies", referenced from:
+#         #     _Curl_resolv in libcurl.a(hostip.c.o)
+#         # ```
+#         # The "Foundation" framework is already linked by GLFW.
+#         target_link_libraries(3rdparty_curl INTERFACE "-framework SystemConfiguration")
+#     endif()
+#     target_link_libraries(3rdparty_curl INTERFACE 3rdparty_openssl)
+# endif()
+# list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_curl)
 
 # PNG
 if(USE_SYSTEM_PNG)
@@ -1522,16 +1525,16 @@ if(NOT USE_SYSTEM_VTK)
 endif()
 list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_vtk)
 
-# UVAtlas
-include(${Open3D_3RDPARTY_DIR}/uvatlas/uvatlas.cmake)
-open3d_import_3rdparty_library(3rdparty_uvatlas
-    HIDDEN
-    INCLUDE_DIRS ${UVATLAS_INCLUDE_DIRS}
-    LIB_DIR      ${UVATLAS_LIB_DIR}
-    LIBRARIES    ${UVATLAS_LIBRARIES}
-    DEPENDS      ext_uvatlas
-)
-list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_uvatlas)
+# # UVAtlas
+# include(${Open3D_3RDPARTY_DIR}/uvatlas/uvatlas.cmake)
+# open3d_import_3rdparty_library(3rdparty_uvatlas
+#     HIDDEN
+#     INCLUDE_DIRS ${UVATLAS_INCLUDE_DIRS}
+#     LIB_DIR      ${UVATLAS_LIB_DIR}
+#     LIBRARIES    ${UVATLAS_LIBRARIES}
+#     DEPENDS      ext_uvatlas
+# )
+# list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_uvatlas)
 
 
 # SYCL link options are specified here. Compile options are only applied to SYCL source files and are specified in cmake/Open3DSYCLTargetSources.cmake
@@ -1654,24 +1657,24 @@ else(OPEN3D_USE_ONEAPI_PACKAGES)
                 # Find libgfortran.a and libgcc.a inside the gfortran library search
                 # directories. This ensures that the library matches the compiler.
                 # On ARM64 Ubuntu and ARM64 macOS, libgfortran.a is compiled with `-fPIC`.
-                find_library(gfortran_lib NAMES libgfortran.a PATHS ${gfortran_lib_dirs} REQUIRED)
-                find_library(gcc_lib      NAMES libgcc.a      PATHS ${gfortran_lib_dirs} REQUIRED)
-                target_link_libraries(3rdparty_blas INTERFACE
-                    ${gfortran_lib}
-                    ${gcc_lib}
-                )
-                if(APPLE_AARCH64)
-                    find_library(quadmath_lib NAMES libquadmath.a PATHS ${gfortran_lib_dirs} REQUIRED)
-                    target_link_libraries(3rdparty_blas INTERFACE
-                        ${quadmath_lib})
-                    # Suppress Apple compiler warnigns.
-                    if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-                        message(WARNING "All link warnings have been disabled on Apple Silicon builds "
-                            "due to the large number of spurious warnings that are generated. If you "
-                            "need to see link warnings please build with -DCMAKE_BUILD_TYPE=Debug.")
-                        target_link_options(3rdparty_blas INTERFACE "-Wl,-w")
-                    endif()
-                endif()
+                # find_library(gfortran_lib NAMES libgfortran.a PATHS ${gfortran_lib_dirs} REQUIRED)
+                # find_library(gcc_lib      NAMES libgcc.a      PATHS ${gfortran_lib_dirs} REQUIRED)
+                # target_link_libraries(3rdparty_blas INTERFACE
+                #     ${gfortran_lib}
+                #     ${gcc_lib}
+                # )
+                # if(APPLE_AARCH64)
+                #     find_library(quadmath_lib NAMES libquadmath.a PATHS ${gfortran_lib_dirs} REQUIRED)
+                #     target_link_libraries(3rdparty_blas INTERFACE
+                #         ${quadmath_lib})
+                #     # Suppress Apple compiler warnigns.
+                #     if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+                #         message(WARNING "All link warnings have been disabled on Apple Silicon builds "
+                #             "due to the large number of spurious warnings that are generated. If you "
+                #             "need to see link warnings please build with -DCMAKE_BUILD_TYPE=Debug.")
+                #         target_link_options(3rdparty_blas INTERFACE "-Wl,-w")
+                #     endif()
+                # endif()
             elseif(UNIX AND NOT APPLE)
                 # On Ubuntu 20.04 x86-64, libgfortran.a is not compiled with `-fPIC`.
                 # The temporary solution is to link the shared library libgfortran.so.

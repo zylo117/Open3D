@@ -24,7 +24,9 @@
     -DENABLE_CACHED_CUDA_MANAGER=OFF \
     -DCMAKE_INSTALL_PREFIX=../install \
     -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG" \
-    -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG" ..
+    -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG"
+    -DCMAKE_C_COMPILER=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -DCMAKE_CXX_COMPILER=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++
+     ..
 
 
 

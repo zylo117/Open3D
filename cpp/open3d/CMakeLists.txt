@@ -64,7 +64,7 @@ add_subdirectory(core)
 add_subdirectory(data)
 add_subdirectory(geometry)
 add_subdirectory(io)
-add_subdirectory(ml)
+# add_subdirectory(ml)
 add_subdirectory(pipelines)
 add_subdirectory(t/geometry)
 add_subdirectory(t/io)
@@ -96,7 +96,7 @@ open3d_ispc_target_sources_TARGET_OBJECTS(Open3D PRIVATE
     tgeometry_kernel
     io
     tio
-    ml_contrib
+    # ml_contrib
     pipelines
     tpipelines
     tpipelines_kernel
@@ -125,7 +125,7 @@ add_source_group(geometry)
 add_source_group(tgeometry)
 add_source_group(io)
 add_source_group(tio)
-add_source_group(ml)
+# add_source_group(ml)
 add_source_group(pipelines)
 add_source_group(tpipelines)
 add_source_group(utility)

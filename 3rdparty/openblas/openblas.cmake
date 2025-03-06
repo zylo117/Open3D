@@ -12,12 +12,14 @@ ExternalProject_Add(
     URL https://github.com/xianyi/OpenBLAS/releases/download/v0.3.20/OpenBLAS-0.3.20.tar.gz
     URL_HASH SHA256=8495c9affc536253648e942908e88e097f2ec7753ede55aca52e5dead3029e3c
     DOWNLOAD_DIR "${OPEN3D_THIRD_PARTY_DOWNLOAD_DIR}/openblas"
+    PATCH_COMMAND ${GIT_EXECUTABLE} init
+    COMMAND       ${GIT_EXECUTABLE} apply --ignore-space-change --ignore-whitespace
+                  ${CMAKE_CURRENT_LIST_DIR}/3760.patch
     CMAKE_ARGS
         ${ExternalProject_CMAKE_ARGS}
         -DTARGET=${OPENBLAS_TARGET}
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-    BUILD_BYPRODUCTS 
-        <INSTALL_DIR>/${Open3D_INSTALL_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${lib_name}${lib_suffix}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    BUILD_COMMAND "make HOSTCC=gcc CC=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang NOFORTRAN=0 TARGET=ARMV8 PREFIX=../../ -j16 install"
 )
 
 ExternalProject_Get_Property(ext_openblas INSTALL_DIR)
