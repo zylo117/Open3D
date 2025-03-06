@@ -1,4 +1,4 @@
-    remove android library debug info to reduce lib size or you can strip it later by yourself
+    1. remove android library debug info to reduce lib size or you can strip it later by yourself
 
     # open $ANDROID_NDK/build/cmake/android.toolchain.cmake for ndk < r23
     # or $ANDROID_NDK/build/cmake/android-legacy.toolchain.cmake for ndk >= r23
@@ -7,7 +7,7 @@
     -g
     -DANDROID
 
-    run
+    2. run
     cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake -DANDROID_ABI="arm64-v8a" \
     -DANDROID_PLATFORM=android-33 \  # must be >= 33 to enable some clang header
     -DBUILD_PYTHON_MODULE=OFF \
@@ -27,6 +27,8 @@
     -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG"
     -DCMAKE_C_COMPILER=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang -DCMAKE_CXX_COMPILER=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++
      ..
+
+    3. then remove "\$<LINK_ONLY:stdc++fs>" from Open3DTargets.cmake and add cppFlags "-std=c++17" in androidstudio
 
 
 
